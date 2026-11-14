@@ -19,6 +19,12 @@ set(ZLIB_SOURCES
 
 add_library(ZLib STATIC ${ZLIB_SOURCES})
 
+# 非 Windows 下 gz*.c 调用 read/write/close/lseek，需要 zconf.h 包含 unistd.h；
+# z_off_t 也随之变为 off_t，因此对使用者同样可见
+if(NOT WIN32)
+    target_compile_definitions(ZLib PUBLIC HAVE_UNISTD_H)
+endif()
+
 target_include_directories(ZLib PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:include/zlib>

@@ -34,6 +34,18 @@ if(WIN32)
     # 禁用不需要的警告
     add_compile_options(/wd4819)  # 禁用C4819警告（字符编码）
     add_compile_options(/wd4789)  # 禁用C4789警告（缓冲区溢出误报）
+else()
+    # 与 Makefile.gnu 相同的定义：OpenJPEG 静态链接、LibRaw 不使用 LCMS、LibJXR 使用 ANSI 平台层
+    add_definitions(-DOPJ_STATIC -DNO_LCMS -DDISABLE_PERF_MEASUREMENT -D__ANSI__)
+
+    # 静态依赖库会链接进 libFreeImage.so，需要 PIC；
+    # 默认隐藏符号，只导出 FreeImage.h 中 DLL_API 标注的接口，避免内置 zlib 等符号与宿主程序冲突
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    set(CMAKE_C_VISIBILITY_PRESET hidden)
+    set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+    set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+    # libwebp 的头文件在 GCC 下把 WEBP_EXTERN 显式标为 default 可见性，覆盖上面的默认值
+    add_definitions(-DWEBP_EXTERN=extern)
 endif()
 
 # 添加子目录构建依赖库
@@ -74,8 +86,11 @@ add_library(FreeImage SHARED
     ${FREEIMAGE_SOURCES}
     ${FREEIMAGE_TOOLKIT_SOURCES}
     ${METADATA_SOURCES}
-    FreeImage.rc
 )
+
+if(WIN32)
+    target_sources(FreeImage PRIVATE FreeImage.rc)
+endif()
 
 # 设置目标属性
 set_target_properties(FreeImage PROPERTIES

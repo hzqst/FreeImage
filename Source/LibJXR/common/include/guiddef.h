@@ -41,7 +41,9 @@ typedef struct {
 } GUID;
 #else
 typedef struct _GUID {
-#if defined(_WINDOWS_) || !__LP64__
+// Test _WIN32 rather than _WINDOWS_: FreeImage.h defines _WINDOWS_ on other platforms, which would give C++ and C
+// translation units different GUID sizes on LP64 (unsigned long is 64-bit there, the on-disk GUID is 16 bytes)
+#if defined(_WIN32) || !__LP64__
     unsigned long  Data1;
 #else
     unsigned int   Data1;

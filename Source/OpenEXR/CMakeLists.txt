@@ -19,6 +19,9 @@ if(WIN32)
     list(FILTER OPENEXR_SOURCES EXCLUDE REGEX "/IlmThread\\.cpp$")
     list(FILTER OPENEXR_SOURCES EXCLUDE REGEX "/IlmThreadMutex\\.cpp$")
     list(FILTER OPENEXR_SOURCES EXCLUDE REGEX "/IlmThreadSemaphore\\.cpp$")
+else()
+    # 其他平台没有 Win32 线程 API，使用单线程 dummy 实现
+    list(FILTER OPENEXR_SOURCES EXCLUDE REGEX "/IlmThread(Mutex|Semaphore)?Win32\\.cpp$")
 endif()
 
 add_library(OpenEXR STATIC ${OPENEXR_SOURCES})
