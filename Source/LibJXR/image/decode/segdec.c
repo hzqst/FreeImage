@@ -29,6 +29,11 @@
 #include "strcodec.h"
 #include "decode.h"
 
+// _byteswap_ulong is an MSVC intrinsic; GCC and Clang provide the same operation as a builtin
+#if !defined(_MSC_VER) && !defined(_byteswap_ulong)
+#define _byteswap_ulong(x) __builtin_bswap32(x)
+#endif
+
 #ifdef MEM_TRACE
 #define TRACE_MALLOC    1
 #define TRACE_NEW       0
